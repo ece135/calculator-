@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+
+        <style>
+            body {
+                display:grid;
+                grid-template-columns:repeat(5, 100px);
+                grid-template-rows:repeat(6, 100px);
+                height: 600px;
+                width: 500px;
+                
+                
+                
+                
+            }
+            .buttonNumbers{
+                background-color:rgb(183, 174, 174);
+                border: 5px solid black;
+                border-radius: 8px;
+                text-align:center;
+                width:100px;
+                height:100px;
+                font-family: Arial, sans-serif;
+                font-size:50px;
+                transition: background-color 0.3s ease;
+                cursor: pointer;
+
+            }
+            .buttonNumbers:hover {
+                background-color: #555;
+                color:white;
+            }
+            .buttonOperators{
+                background-color:pink;
+                text-align:center;
+                width:100px;
+                height:100px;
+                font-family: Arial, sans-serif;
+                font-size:50px;
+                border: 5px solid black;
+                border-radius: 8px;
+                transition: background-color 0.3s ease;
+                cursor: pointer;
+
+            }
+            .buttonOperators:hover {
+                background-color: purple;
+                color:whitesmoke
+            }
+            .buttonSci{
+                background-color:lightblue;
+                display: flex;
+                justify-content: center;   
+                align-items: center; 
+                width:100px;
+                height:100px;
+                font-family: Arial, sans-serif;
+                font-size:30px;
+                border: 5px solid black;
+                border-radius: 8px;
+                transition: background-color 0.3s ease;
+                cursor: pointer;
+                
+
+            }
+            .buttonSci:hover {
+                background-color: darkblue;
+                color:whitesmoke;
+
+            }
+           
+
+            #screen{
+                background-color:beige;
+                display:flex;
+                align-items: center;
+                justify-content: flex-end;
+                border: 10px solid black;
+                height:100px;
+                grid-column: 1 / -1;
+                grid-row: 1;
+                font-size:50px;
+                font-family: Arial, sans-serif;
+                border-radius: 8px;
+                white-space: nowrap;
+            }
+
+            button sup{
+                vertical-align: -10px;
+                font-size: 0.5em;
+                margin-bottom: 10px;
+                
+            }
+
+            #screen sup {
+                vertical-align: top;
+                font-size: 0.5em;
+                line-height:1;
+                display:inline-block;
+                margin-left:1px;
+                position: relative;
+                top: -0.5em; 
+
+            }
+                
+        </style>
+    </head>
+    <body>
+        <div id="screen"></div>
+        <button class="buttonNumbers" >1</button>
+        <button class="buttonNumbers" >2</button>
+        <button class="buttonNumbers" >3</button>
+        <button class="buttonOperators">+</button>
+        <button class="buttonSci" data-display="">DEL</button>
+        <button class="buttonNumbers" >4</button>
+        <button class="buttonNumbers" >5</button>
+        <button class="buttonNumbers">6</button>
+        <button class="buttonOperators">-</button>
+        <button class="buttonSci">.</button>
+        <button class="buttonNumbers">7</button>
+        <button class="buttonNumbers">8</button>
+        <button class="buttonNumbers">9</button>
+        <button class="buttonOperators">x</button>
+        <button class="buttonSci" data-value="**" data-display="x<sup>a</sup>">x<sup>y</sup></button>
+        <button class="buttonOperators">=</button>
+        <button class="buttonNumbers">0</button>
+        <button class="buttonOperators">AC</button>
+        <button class="buttonOperators">/</button>
+        <button class="buttonSci">√x</button>
+        <button class="buttonSci">(</button>
+        <button class="buttonSci">)</button>
+        <button class="buttonSci">sin</button>
+        <button class="buttonSci">cos</button>
+        <button class="buttonSci">tan</button>
+        
+        
+        
+        <script>
+            let expression = "";
+            let base = ""
+            let exponent = ""
+            let isExponent = false;
+            
+            const screen = document.getElementById("screen");
+            const buttons = document.querySelectorAll(".buttonNumbers, .buttonOperators, .buttonSci");
+            screen.innerHTML = "";
+            
+
+            function toRadians(deg) {
+                return deg * Math.PI / 180;
+            }
+
+            function trigonometricFunction(expr) {
+
+
+                expr = expr.replace(/sin\(([^)]+)\)/g, (match, degree) => {
+                    return Math.sin(toRadians(parseFloat(degree)));
+                });
+                expr = expr.replace(/cos\(([^)]+)\)/g, (match, degree) => {
+                    return Math.cos(toRadians(parseFloat(degree)));
+                });
+                expr = expr.replace(/tan\(([^)]+)\)/g, (match, degree) => {
+                    return Math.tan(toRadians(parseFloat(degree)));
+                });
+                return expr;
+            
+            
+            function calculate() {
+                try {
+                    while ((expression.match(/\(/g) || []).length > (expression.match(/\)/g) || []).length) {
+                    expression += ")";
+}
+                    let expr = expression.replace(/x/g, "*");
+                    
+                    
+                    expr = trigonometricFunction(expr);
+                    const result = eval(expr);
+
+                    screen.innerHTML = result;
+                    expression = result;
+                    
+                    
+                
+                    if (result === "Infinity" || result === "-Infinity") {
+                        screen.innerHTML = "Error!";
+                    }
+                   
+                
+                    
+                    
+                } 
+                catch (e) {
+                    screen.innerHTML = "Error!";
+                    expression = "";
+                }
+            }
+
+            buttons.forEach(button => {
+                button.addEventListener("click", (event) => {
+                    const clickedElement = event.currentTarget;
+                    const value = clickedElement.dataset.value || clickedElement.textContent;
+                    const display = clickedElement.dataset.display || value;
+                    
+
+                   if (value === "AC") {
+                        expression = "";
+                        screen.innerHTML = "";
+                        value = "";
+                        isExponent = false;
+                        exponent = "";
+                        return;
+                        
+                    } 
+                    else if (value === "DEL") {
+                        if (isExponent) {
+                            exponent = exponent.slice(0, -1);
+                            if (exponent.length === 0) {
+                                isExponent = false;
+                                screen.innerHTML = screen.innerHTML.replace(/<sup>.*<\/sup>/, '');
+                                expression = expression.slice(0, -2); 
+                            }
+                            
+                            else {
+                                screen.innerHTML = screen.innerHTML.replace(/<sup>.*<\/sup>/, `<sup>${exponent}</sup>`);
+                            }
+                        } else {
+                            expression = expression.slice(0, -1);
+                            screen.innerHTML = screen.innerHTML.slice(0, -1);
+            
+                        }
+                        return;
+                    }
+                    
+                    
+                    else if (value === "√x") {
+                        expression += "Math.sqrt(";
+                        screen.innerHTML += "√";
+                        return;
+                    } 
+                    else if (value === "(") {
+                        expression += "(";
+                        screen.innerHTML += "(";
+                        return;
+                    } 
+                    else if (value === ")") {
+                        expression += ")";
+                        screen.innerHTML += ")";
+                        return;
+                    }
+                    else if (value === "sin" || value === "cos" || value === "tan") {
+                        expression += `${value}(`;
+                        screen.innerHTML += `${value}(`;
+                        return;
+                    } 
+                    
+                    else if (value === "/") {
+                        expression += "/";
+                        screen.innerHTML += "/";
+                        return;
+                    } 
+                    else if (value === "x") {
+                        expression += "*";
+                        screen.innerHTML += "*";
+                        return;
+                    } 
+                    
+                    else if (value === "-") {
+                        expression += "-";
+                        screen.innerHTML += "-";
+                        return;
+                    } 
+                    
+                    else if (value === "+") {
+                        expression += "+";
+                        screen.innerHTML += "+";
+                        return;
+                    }
+                    
+
+                    if(value === "=") {
+                       
+                        calculate();
+                        return;
+                    }
+
+                    else if(value === "**") {
+                        base = expression;
+                        isExponent = true;    
+                        exponent = "";
+                        expression += "**";     
+                        screen.innerHTML += "<sup></sup>";
+                        return;
+                    } 
+                    else {
+                        if (isExponent) {
+                            exponent += value;
+                            screen.innerHTML = screen.innerHTML.replace(/<sup>.*<\/sup>/, `<sup>${exponent}</sup>`);
+                            expression += value;
+                        }
+                        else {
+                            expression += value;
+                            screen.innerHTML += display;
+                        }
+                        
+                    }
+    
+                    
+                });
+            });
+        </script>
+    </body>
+        
+</html>         
+            
+           
+                
+            
