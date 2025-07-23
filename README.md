@@ -17,4 +17,6 @@ It allows users to perform basic and advanced mathematical operations with a use
 
 Just click the buttons to enter your expression, and press `=` to see the result.
 
+[you can try the calculator from here:](https://ece135.github.io/calculator-/)
+
 
